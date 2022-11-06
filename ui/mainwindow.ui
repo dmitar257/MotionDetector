@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Movement Detector</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="cameraPage">
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="cameraCanvas">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:rgb(0, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="videoPage">
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QVBoxLayout" name="videoVerticalLayout" stretch="0,0">
+          <property name="spacing">
+           <number>7</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetFixedSize</enum>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="videoCanvas">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color:rgb(0, 0, 0)</string>
+            </property>
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="videoOptionsGroup">
+            <property name="title">
+             <string/>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="verticalLayout">
+               <item>
+                <widget class="QLabel" name="passedTimeLabel">
+                 <property name="text">
+                  <string>02:03</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="horizontalSlider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="videoDurationLabel">
+                 <property name="text">
+                  <string>03:00</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="sizeConstraint">
+                <enum>QLayout::SetDefaultConstraint</enum>
+               </property>
+               <property name="leftMargin">
+                <number>7</number>
+               </property>
+               <property name="rightMargin">
+                <number>7</number>
+               </property>
+               <item>
+                <spacer name="horizontalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>37</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="prevButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../resources/back_icon.png</normaloff>../resources/back_icon.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="playButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../resources/play_icon.png</normaloff>../resources/play_icon.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="forwardButton">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../resources/forward_icon.png</normaloff>../resources/forward_icon.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="previewFramesPage">
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="previewFrameLabel1">
+          <property name="styleSheet">
+           <string notr="true">background-color:rgb(0, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="previewFrameLabel2">
+          <property name="styleSheet">
+           <string notr="true">background-color:rgb(0, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="previewFrameLabel3">
+          <property name="styleSheet">
+           <string notr="true">background-color:rgb(0, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="previewFrameLabel4">
+          <property name="styleSheet">
+           <string notr="true">background-color:rgb(0, 0, 0)</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMedia">
+    <property name="title">
+     <string>Media</string>
+    </property>
+    <addaction name="actionVideo"/>
+    <addaction name="actionSelectCamera"/>
+   </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <widget class="QMenu" name="menuDetectionType">
+     <property name="title">
+      <string>Tracking Type</string>
+     </property>
+     <addaction name="actionRectangles"/>
+     <addaction name="actionContours"/>
+     <addaction name="actionCrosshair"/>
+    </widget>
+    <addaction name="menuDetectionType"/>
+    <addaction name="actionMotionDetectionParams"/>
+    <addaction name="actionMotionRecordingParameters"/>
+    <addaction name="actionMotionLoggingParameters"/>
+    <addaction name="actionObjectDetectionParameters"/>
+    <addaction name="actionSoundDetectionParameters"/>
+   </widget>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionFrameChangeProcess"/>
+   </widget>
+   <widget class="QMenu" name="menuSubscriptions">
+    <property name="title">
+     <string>Subscriptions</string>
+    </property>
+    <addaction name="actionAddEmailSubscriber"/>
+   </widget>
+   <addaction name="menuMedia"/>
+   <addaction name="menuOptions"/>
+   <addaction name="menuShow"/>
+   <addaction name="menuSubscriptions"/>
+  </widget>
+  <action name="actionRectangles">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rectangles</string>
+   </property>
+  </action>
+  <action name="actionContours">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Contours</string>
+   </property>
+  </action>
+  <action name="actionCrosshair">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Crosshair</string>
+   </property>
+  </action>
+  <action name="actionFrameChangeProcess">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Frame change process</string>
+   </property>
+  </action>
+  <action name="actionMotionDetectionParams">
+   <property name="text">
+    <string>Motion Detection Parameters</string>
+   </property>
+  </action>
+  <action name="actionSelectCamera">
+   <property name="text">
+    <string>Select Camera</string>
+   </property>
+  </action>
+  <action name="actionMotionLoggingParameters">
+   <property name="text">
+    <string>Motion Logging Parameters</string>
+   </property>
+  </action>
+  <action name="actionSoundDetectionParameters">
+   <property name="text">
+    <string>Sound Detection Parameters</string>
+   </property>
+  </action>
+  <action name="actionMotionRecordingParameters">
+   <property name="text">
+    <string>Motion Recording Parameters</string>
+   </property>
+  </action>
+  <action name="actionObjectDetectionParameters">
+   <property name="text">
+    <string>Object Detection Parameters</string>
+   </property>
+  </action>
+  <action name="actionAddEmailSubscriber">
+   <property name="text">
+    <string>Add Email Subscriber</string>
+   </property>
+  </action>
+  <actiongroup name="GroupTool2">
+   <action name="actionRunningAverage">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>Running Average</string>
+    </property>
+   </action>
+   <action name="actionMixtureOfGaussians">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>Mixture of Gaussians</string>
+    </property>
+   </action>
+  </actiongroup>
+  <actiongroup name="GroupTool1">
+   <action name="actionCamera">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>Camera</string>
+    </property>
+   </action>
+   <action name="actionVideo">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+    <property name="text">
+     <string>Video</string>
+    </property>
+    <property name="visible">
+     <bool>false</bool>
+    </property>
+   </action>
+  </actiongroup>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

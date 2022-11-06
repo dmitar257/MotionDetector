@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>327</width>
+    <height>204</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,0">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetDefaultConstraint</enum>
+   </property>
+   <item row="1" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="addUserButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Add User</string>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="cancelButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Add Email Subscription</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="usernameLabel">
+        <property name="text">
+         <string>Username: </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="usernameLineEdit">
+        <property name="font">
+         <font>
+          <kerning>false</kerning>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border-color:rgb(0, 0, 0);</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="emailLabel">
+        <property name="text">
+         <string>EMail:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="emailLineEdit">
+        <property name="styleSheet">
+         <string notr="true">border-color:rgb(0, 0, 0);</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="backoffTimeLabel">
+          <property name="text">
+           <string>Backoff Spam Interval:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="hoursSpinBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="hoursLabel">
+          <property name="text">
+           <string>hours,</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="minutesSpinBox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="minutesLabel">
+          <property name="text">
+           <string>minutes</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

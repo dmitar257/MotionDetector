@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>427</width>
+    <height>174</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="page_2">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="1">
+        <widget class="QLabel" name="loadingLabel">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>100</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>100</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="3">
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Please wait for program to detect all camera devices...</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page">
+      <widget class="QComboBox" name="cameraDevicesComboBox">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>60</y>
+         <width>361</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>20</y>
+         <width>271</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Select the wanted input camera device:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="selectCameraButton">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>110</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select Camera</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>110</y>
+         <width>101</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
