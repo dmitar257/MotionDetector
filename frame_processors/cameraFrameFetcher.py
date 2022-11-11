@@ -18,6 +18,8 @@ class CameraFrameFetcher(FrameFetcher):
     def startCapturingFrames(self) -> None:
         try:
             self.cameraController = self.getCameraContoller(self.settings.cameraIndex)
+            self.cameraController.set(cv2.CAP_PROP_FRAME_WIDTH,640)
+            self.cameraController.set(cv2.CAP_PROP_FRAME_HEIGHT,480)
             time.sleep(2.0)
             self.frameResolutionFetched.emit(self.getFramesResolution())
             self.running = True

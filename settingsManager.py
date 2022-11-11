@@ -2,7 +2,6 @@ from typing import Dict, List
 from PyQt5.QtCore import QObject, pyqtSignal, QSettings
 from utils import AlgorithmType, createFolderIfNoExisting
 import os
-import json
 
 
 defaultSettings = {
@@ -62,8 +61,8 @@ class SettingsManager(QObject):
         self.settings = QSettings("MasterWork","MotionDetector")
         self.currentSettings = self.loadSettings()
         self.initializeDirs()
+        self.reloadRecordingPathIfNeeded()
         
-    
     def initializeDirs(self) -> None:
         createFolderIfNoExisting(self.currentSettings["movementRecorderSettings"]["recordingsDir"])
         createFolderIfNoExisting(os.path.dirname(self.currentSettings["movementLoggerSettings"]["loggingPath"]))
@@ -231,3 +230,8 @@ class SettingsManager(QObject):
             },
             "emailSubscribers": self.settings.value("emailSubscribers")      
         }
+    
+    def reloadRecordingPathIfNeeded(self) -> None:
+        if not os.path.exists(self.currentSettings["movementRecorderSettings"]["recordingsDir"]):
+            self.currentSettings["movementRecorderSettings"]["recordingsDir"] = defaultSettings["movementRecorderSettings"]["recordingsDir"]
+

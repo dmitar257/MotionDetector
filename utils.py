@@ -7,6 +7,9 @@ import math
 import numpy as np
 from PyQt5.QtGui import QImage
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 Frame = np.ndarray
 Contour = np.ndarray
@@ -61,5 +64,8 @@ def get_aspect_ratio_from_resolution(width: int, height: int) -> Tuple[int, int]
 
 def createFolderIfNoExisting(folderPath):
     if not os.path.exists(folderPath):
+        logger.info("Creating folder: %s", folderPath)
         os.mkdir(folderPath)
+        logger.info("Created folder: %s", folderPath)
+        
 

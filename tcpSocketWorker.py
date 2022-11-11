@@ -15,12 +15,10 @@ class TCPSocketWorker(QObject):
         isSuccess = self.tcpSock.setSocketDescriptor(self.handle)
         if not isSuccess:
             self.errorWhenSettingDescriptor.emit(self.tcpSock.error())
-        print("Worker socket started !")
     
     @pyqtSlot()
     def onClose(self):
         self.tcpSock.close()
-        print("Worker socket closed !")
     
     @pyqtSlot(bytes)
     def onDataReadyToSend(self, data: bytes):
