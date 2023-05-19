@@ -4,9 +4,12 @@ from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 import os
 import cv2
 from utils import Frame
+import logging
 
 RECORDING_FPS = 20
 RECORDING_RESOLUTION = (1080, 720) 
+
+logger = logging.getLogger(__name__)
 
 class MovementRecorder(QObject):
     toggleIsRecording = pyqtSignal(bool)

@@ -1,7 +1,8 @@
-from typing import Optional
+from typing import Optional, Dict
 from PyQt5.QtCore import pyqtSignal,pyqtSlot,QMutexLocker,QMutex, QObject
 import pyaudio, math, struct
 import logging
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -9,11 +10,20 @@ FRAME_CHUNK_SIZE = 1024
 NUM_OF_CHANNELS = 2
 SAMPLING_RATE = 44100
 
+@dataclass
+class SoundDetectorParameters:
+    soundThreshold: int
+    enabled: bool
+
+
 class SoundDetector(QObject):
-    soundAbowThresholdDetected = pyqtSignal(bool)
+    soundAbowThresholdDetected = pyqtSignal(bool, int)
     errorOccured = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(
+            self,
+            sound_detector_params: SoundDetectorParameters
+            ) -> None:
         super().__init__()
         self.__running = False
         self.chunk = FRAME_CHUNK_SIZE
@@ -25,8 +35,8 @@ class SoundDetector(QObject):
         self.__stream = self.openMicStream()
         self.__runningMutex = QMutex()
         self.__thresholdMutex = QMutex()
-        self.enabled = True
-        self.soundThreshold = 25
+        self.enabled = sound_detector_params.enabled
+        self.soundThreshold = sound_detector_params.soundThreshold
         self.closeStream = False
     
     def isRunning(self):
@@ -89,15 +99,15 @@ class SoundDetector(QObject):
                 if abs(rmsLog) > self.soundThreshold:
                     num_of_sequential_silent_blocks += 1
                     if num_of_sequential_silent_blocks > self.silenceThresh:
-                        self.soundAbowThresholdDetected.emit(False)
+                        self.soundAbowThresholdDetected.emit(False, -1)
                         loud_sequence_found = False
                 else:
                     num_of_sequential_silent_blocks = 0
             elif not (abs(rmsLog) > self.soundThreshold):
-                self.soundAbowThresholdDetected.emit(True)
+                self.soundAbowThresholdDetected.emit(True, abs(rmsLog))
                 loud_sequence_found = True
 
-        self.soundAbowThresholdDetected.emit(False)
+        self.soundAbowThresholdDetected.emit(False, -1)
     
     def get_rms_log_for_block(self, block: bytes) -> Optional[float]:
         try:
@@ -129,4 +139,12 @@ class SoundDetector(QObject):
         self.__stream.close()
         self.__pa.terminate()
     
-    
+class SoundDetectorFactory:
+    @classmethod
+    def createSoundDetector(cls, settings_dict: Dict) -> SoundDetector:
+        return SoundDetector(
+            SoundDetectorParameters(
+                settings_dict["volumeThreshold"],
+                settings_dict["soundDetectionEnabled"]
+            )
+        )

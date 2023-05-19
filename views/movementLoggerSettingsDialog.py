@@ -16,6 +16,7 @@ class MotionLoggingSettingsDialog(QtWidgets.QDialog):
         self.invertedAxisCheckBox = self.findChild(QtWidgets.QCheckBox,'invertedXaxisCheckBox')
         self.logFilePathLineEdit = self.findChild(QtWidgets.QLineEdit,'logFilePathLineEdit')
         self.browseFilesBtn = self.findChild(QtWidgets.QPushButton,'browseFilesPushButton')
+        self.oneLineCheckBox = self.findChild(QtWidgets.QCheckBox,'oneLineCheckBox')
         self.acceptBtn = self.findChild(QtWidgets.QPushButton,'acceptButton')
         self.cancelButton = self.findChild(QtWidgets.QPushButton,'cancelButton')
         self.loadDefaultBtn = self.findChild(QtWidgets.QPushButton, 'loadDefaultBtn')
@@ -32,13 +33,16 @@ class MotionLoggingSettingsDialog(QtWidgets.QDialog):
         self.scalingWidthComboBox.setCurrentIndex(self.scalingWidthComboBox.findText(str(current_config['scalingWidth'])))
         self.invertedAxisCheckBox.setChecked(current_config['invertedXaxis'])
         self.logFilePathLineEdit.setText(current_config['loggingPath'])
+        self.oneLineCheckBox.setChecked(current_config['oneLineLog'])
+
     
     def getData(self) -> Dict:
         return{
             'loggingInterval': self.loggingIntervalSpinBox.value(),
             'scalingWidth': int(self.scalingWidthComboBox.currentText()),
             'invertedXaxis': self.invertedAxisCheckBox.isChecked(),
-            'loggingPath': self.logFilePathLineEdit.text()
+            'loggingPath': self.logFilePathLineEdit.text(),
+            'oneLineLog': self.oneLineCheckBox.isChecked()
         }
 
     def onBrowseFoldersBtnClicked(self):
@@ -60,6 +64,7 @@ class MotionLoggingSettingsDialog(QtWidgets.QDialog):
         scalingWidthInfo = 'The logging width of screen.'
         invertedXaxisInfo = 'Wheather or not the 0 x value begins on left, or on right.'
         logFilePathInfo = 'Location on disc where logging file would be stored'
+        oneLineLogInfo = 'If checked, log file will contain only last movement, othervise it would contain previous movement info'
         self.findChild(QtWidgets.QLabel, 'loggingIntervalLabel').setWhatsThis(loggingIntervalInfo)
         self.findChild(QtWidgets.QSpinBox, 'loggingIntervalSpinBox').setWhatsThis(loggingIntervalInfo)
         self.findChild(QtWidgets.QLabel, 'scalingWidthLabel').setWhatsThis(scalingWidthInfo)
@@ -68,7 +73,7 @@ class MotionLoggingSettingsDialog(QtWidgets.QDialog):
         self.findChild(QtWidgets.QCheckBox,'invertedXaxisCheckBox').setWhatsThis(invertedXaxisInfo)
         self.findChild(QtWidgets.QLabel, 'logFilePathLabel').setWhatsThis(logFilePathInfo)
         self.findChild(QtWidgets.QLineEdit,'logFilePathLineEdit').setWhatsThis(logFilePathInfo)
-
-
+        self.findChild(QtWidgets.QLabel, 'oneLineLabel').setWhatsThis(oneLineLogInfo)
+        self.findChild(QtWidgets.QCheckBox,'oneLineCheckBox').setWhatsThis(oneLineLogInfo)
 
 

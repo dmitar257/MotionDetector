@@ -27,11 +27,13 @@ class MainView(QtWidgets.QMainWindow):
     cameraInfoListReceived = pyqtSignal(list)
     startFetchingCameraInfo = pyqtSignal()
     toggleMovementDisplayType = pyqtSignal(MovementPresentationType, bool)
+    toggleEmailNotifications = pyqtSignal(bool)
 
     def __init__(self, settingsManger: SettingsManager):
         super(MainView, self).__init__()
         self.settingsManger = settingsManger
         self.setupUI()
+        self.loadNotificationEnablement()
 
     def setupUI(self) -> None:
         self.setWindowIcon(QIcon('resources/icon.png')) 
@@ -50,6 +52,7 @@ class MainView(QtWidgets.QMainWindow):
         self.actionObjectDetectionParameters = self.findChild(QtWidgets.QAction, 'actionObjectDetectionParameters')
         self.actionMotionLoggingParams = self.findChild(QtWidgets.QAction, 'actionMotionLoggingParameters')
         self.actionSelectCamera = self.findChild(QtWidgets.QAction, 'actionSelectCamera')
+        self.actionEnableEmailNotifications = self.findChild(QtWidgets.QAction, 'actionEnableEmailNotifications')
         self.actionAddEmailSubscription = self.findChild(QtWidgets.QAction, 'actionAddEmailSubscriber')
         self.rectangleAction = self.findChild(QtWidgets.QAction, 'actionRectangles')
         self.contourAction = self.findChild(QtWidgets.QAction, 'actionContours')
@@ -71,6 +74,13 @@ class MainView(QtWidgets.QMainWindow):
         self.rectangleAction.triggered.connect(self.onRectanglesActionToggled)
         self.contourAction.triggered.connect(self.onContourActionToggled)
         self.crosshairAction.triggered.connect(self.onCrosshairActionToggled)
+        self.actionEnableEmailNotifications.triggered.connect(self.onEnableEmailNotificationActionToggled)
+
+    def loadNotificationEnablement(self) -> None:
+        val = self.settingsManger.getEmailSubscriberSettings()["broadcastToSubscribers"]
+        self.actionEnableEmailNotifications.setChecked(
+            self.settingsManger.getEmailSubscriberSettings()["broadcastToSubscribers"]
+        )
 
     @pyqtSlot(QImage)
     def onImageReceived(self, frame: QImage) -> None:
@@ -204,4 +214,9 @@ class MainView(QtWidgets.QMainWindow):
     
     @pyqtSlot(bool)
     def onCrosshairActionToggled(self, toggled: bool) -> None:
-        self.toggleMovementDisplayType.emit(MovementPresentationType.CROSSHAIR, toggled)       
+        self.toggleMovementDisplayType.emit(MovementPresentationType.CROSSHAIR, toggled)      
+
+    @pyqtSlot(bool)
+    def onEnableEmailNotificationActionToggled(self, toggled:bool) -> None:
+        logger.info("On toggled email notifications: %s", toggled)
+        self.toggleEmailNotifications.emit(toggled)

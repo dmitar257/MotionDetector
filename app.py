@@ -22,6 +22,7 @@ def main():
     view.toogleShowPreviewFrames.connect(cnt.onPreviewFramesToggled)
     view.startFetchingCameraInfo.connect(cnt.onCameraInfoFetcherStart)
     view.toggleMovementDisplayType.connect(cnt.onToggledMovementDisplayType)
+    view.toggleEmailNotifications.connect(cnt.onEmailNotificationEnabledToggled)
     view.show()
     app.exit(app.exec_())
 

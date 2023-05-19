@@ -31,6 +31,7 @@ class EmailSubscribersController(QObject):
         self.listOfUnprocessedSubscribers: List[EmailSubsriber] = []
         self.movementDetectedTimestamp = None
         self.yag = None
+        self.enableNotifications = False
 
     @pyqtSlot()
     def onStart(self) -> None:
@@ -38,6 +39,8 @@ class EmailSubscribersController(QObject):
     
     @pyqtSlot(bool)
     def onContinuousMovementToggled(self, movementPresent:bool) -> None:
+        if not self.enableNotifications:
+            return
         if movementPresent:
             curentTime = datetime.now()
             if self.subscribersForProcessing(curentTime):
@@ -90,14 +93,15 @@ class EmailSubscribersController(QObject):
             Motion Detection Bot
         """
     
-    def loadSubscribers(self, subscribers:Dict) -> None:
-        for email in subscribers:
+    def loadSubscriberSettings(self, subscriberSettings:Dict) -> None:
+        for email in subscriberSettings["emailSubscribers"]:
             self.allSubscribers[email] = EmailSubsriber(
-                subscribers[email]["username"],
+                subscriberSettings["emailSubscribers"][email]["username"],
                 email,
-                subscribers[email]["backoff"]["hour"],
-                backoffIntervalMinute=subscribers[email]["backoff"]["minutes"]
+                subscriberSettings["emailSubscribers"][email]["backoff"]["hour"],
+                backoffIntervalMinute=subscriberSettings["emailSubscribers"][email]["backoff"]["minutes"]
                 )
+        self.enableNotifications = subscriberSettings["broadcastToSubscribers"]
         
     @pyqtSlot(dict)
     def onSubscriberAdded(self, subscriber: Dict) -> None:
@@ -114,6 +118,11 @@ class EmailSubscribersController(QObject):
             subscriber["backoff"]["hour"], 
             subscriber["backoff"]["minutes"]
         )
+    
+    @pyqtSlot(bool)
+    def onEnableNotificationsToggled(self, enabled: bool) -> None:
+        logger.info("Email notification toggled, value: %s", enabled)
+        self.enableNotifications = enabled
             
 class GifCreator(QObject):
     gifReady = pyqtSignal(bytes)

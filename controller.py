@@ -14,7 +14,7 @@ from movementLogger import MovementLogger, MovementLoggerFactory
 from movementRecorder import MovementRecorder
 from frame_processors.movementTracker import MovementTracker, MovementTrackerFactory
 from settingsManager import SettingsManager
-from soundDetector import SoundDetector
+from soundDetector import SoundDetector, SoundDetectorFactory
 from tcpServer import TcpServer
 from utils import Frame, PointCoords, PreviewFrames, SourceMediaType, convertCvFrameToQImage, MovementPresentationType
 from PyQt5.sip import voidptr
@@ -45,6 +45,7 @@ class Controller(QObject):
     frameSourceNotFound = pyqtSignal()
     soundDetectionErrorAppeared = pyqtSignal(str)
     movementDisplayTypeToggled = pyqtSignal(MovementPresentationType, bool)
+    emailNotificationToggled = pyqtSignal(bool)
 
     def __init__(
         self, 
@@ -62,7 +63,7 @@ class Controller(QObject):
         self.movementTracker: MovementTracker = MovementTrackerFactory.createMovementTracker(settingsManager.getMovementTrackerSettings())
         self.movementRecorder: MovementRecorder = MovementRecorder()
         self.movementLogger: MovementLogger = MovementLoggerFactory.createMovementLogger(settingsManager.getMovementLoggerSettingss())
-        self.soundDetector:SoundDetector = SoundDetector()
+        self.soundDetector:SoundDetector = SoundDetectorFactory.createSoundDetector(settingsManager.getSoundDetectionSettings())
         self.tcpServer = TcpServer(9500)
         self.objectDetector = ObjectDetector(
             ObjectDetectionSettings(
@@ -72,7 +73,7 @@ class Controller(QObject):
         )
         self.cameraInfoFetcher = CameraInfoFetcher()
         self.emailSubsribersController = EmailSubscribersController()
-        self.emailSubsribersController.loadSubscribers(settingsManager.getEmailSubscribers())
+        self.emailSubsribersController.loadSubscriberSettings(settingsManager.getEmailSubscriberSettings())
         self.gifCreator = GifCreator() 
         self.subscribers: List[FrameToNetworkStreamer] = []
 
@@ -118,6 +119,7 @@ class Controller(QObject):
 
     def connectSoundDetectorSignalAndSlots(self) -> None:
         self.soundDetector.soundAbowThresholdDetected.connect(self.frameDrawer.onSetIsSoundDetectedText)
+        self.soundDetector.soundAbowThresholdDetected.connect(self.movementLogger.onSoundDetectedReceived)
         self.soundDetector.errorOccured.connect(self.onErrorOccuredInSoundDetector)
 
     def connectMovementTrackerSignalAndSlots(self) -> None:
@@ -137,12 +139,14 @@ class Controller(QObject):
 
     def connectSettingsManager(self) -> None:
         self.settingsManager.frameDetectionSettingsSet.connect(self.frameTransforamtor.onFrameTransformatorSettingsChanged)
+        self.settingsManager.frameRecordingSettingsSet.connect(self.movementRecorder.onRecorderSettingsChanged)
         self.settingsManager.frameRecordingSettingsSet.connect(self.movementTracker.onSettingsChanged)
         self.settingsManager.soundDetectionSettingsSet.connect(self.onSoundDetectedSettingsChanged)
         self.settingsManager.objectDetectionSettingsSet.connect(self.onObjectDetectionSettingsChanged)
         self.settingsManager.movementLoggerSettingsSet.connect(self.movementLogger.onSettingsChanged)
         self.settingsManager.cameraSettingsSet.connect(self.onCameraSettingsChanged)
         self.settingsManager.emailSubscriberAdded.connect(self.emailSubsribersController.onSubscriberAdded)
+        self.settingsManager.emailNotificatioToggle.connect(self.emailSubsribersController.onEnableNotificationsToggled)
     
     def connectObjectDetector(self) -> None:
         self.objectDetector.objectsInFrameDetected.connect(self.frameDrawer.onObjectForDrawingReceived)
@@ -307,8 +311,8 @@ class Controller(QObject):
             return
 
         if new_settings["soundDetectionEnabled"]:
-            self.soundDetector = SoundDetector()
-            self.soundDetector.soundThreshold = new_settings["volumeThreshold"]
+            self.soundDetector = SoundDetectorFactory.createSoundDetector(new_settings)
+            #self.soundDetector.soundThreshold = new_settings["volumeThreshold"]
             self.connectSoundDetectorSignalAndSlots()
             self.threadController.addWorkerToGroup(
                 WorkerGroupInfo(
@@ -366,3 +370,8 @@ class Controller(QObject):
     @pyqtSlot(MovementPresentationType, bool)
     def onToggledMovementDisplayType(self, movementPresentationType: MovementPresentationType, toggled: bool) -> None:
         self.movementDisplayTypeToggled.emit(movementPresentationType, toggled)
+    
+    @pyqtSlot(bool)
+    def onEmailNotificationEnabledToggled(self, toggle: bool)-> None:
+        #self.emailNotificationToggled.emit(toggle)
+        self.settingsManager.toggleEmailNotifications(toggle)

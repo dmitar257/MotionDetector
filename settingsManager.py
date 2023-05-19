@@ -1,8 +1,13 @@
 from typing import Dict, List
-from PyQt5.QtCore import QObject, pyqtSignal, QSettings
+from PyQt5.QtCore import QObject, pyqtSignal, QSettings, QVariant
 from utils import AlgorithmType, createFolderIfNoExisting
 import os
+import logging
 
+logger = logging.getLogger(__name__)
+
+class ValueNotDefinedInINIError(Exception):
+    pass
 
 defaultSettings = {
     "frameTransformatorSettings":{
@@ -34,7 +39,8 @@ defaultSettings = {
         "loggingInterval":500,
         "scalingWidth": 800,
         "invertedXaxis":False,
-        "loggingPath":"C:\\test\\test.txt"
+        "loggingPath":"C:\\test",
+        "oneLineLog": True
     },
     "cameraSettings":{
         "cameraIndex":0
@@ -43,9 +49,20 @@ defaultSettings = {
         "detectionEnabled": False,
         "confidenceThreshold": 0.5
     },
-    "emailSubscribers": {
+    "subscriberSettings":{
+        "emailSubscribers": {
+        },
+        "broadcastToSubscribers": False
     }
+
 }
+
+class MotionDetectorSettings(QSettings):
+    def value(self, key, raise_error = True):
+        value = super().value(key)
+        if value is None and raise_error:
+            raise ValueNotDefinedInINIError(f"Value {key} is not defined in INI file")
+        return value  
 
 class SettingsManager(QObject):
     frameDetectionSettingsSet = pyqtSignal(dict)
@@ -55,10 +72,11 @@ class SettingsManager(QObject):
     cameraSettingsSet = pyqtSignal(dict)
     objectDetectionSettingsSet = pyqtSignal(dict)
     emailSubscriberAdded = pyqtSignal(dict)
+    emailNotificatioToggle = pyqtSignal(bool)
 
     def __init__(self) -> None:
         super().__init__()
-        self.settings = QSettings("MasterWork","MotionDetector")
+        self.settings = MotionDetectorSettings("MasterWork","MotionDetector")
         self.currentSettings = self.loadSettings()
         self.initializeDirs()
         self.reloadRecordingPathIfNeeded()
@@ -118,8 +136,8 @@ class SettingsManager(QObject):
             return defaultSettings["objectDetectionSettings"]  
         return self.currentSettings["objectDetectionSettings"]
     
-    def getEmailSubscribers(self) -> List:
-        return self.currentSettings["emailSubscribers"]
+    def getEmailSubscriberSettings(self) -> List:
+        return self.currentSettings["subscriberSettings"]
     
     def setSoundDetectionSettings(self, soundDetectionSettings: Dict) -> Dict:
         self.currentSettings["soundDetectorSettings"] = soundDetectionSettings
@@ -146,19 +164,29 @@ class SettingsManager(QObject):
         self.objectDetectionSettingsSet.emit(objectDetectionSettings)
     
     def addEmailSubscription(self, emailSubDict: Dict) -> None:
-        self.currentSettings["emailSubscribers"][emailSubDict["email"]] = emailSubDict
-        self.emailSubscriberAdded.emit(emailSubDict) 
+        self.currentSettings["subscriberSettings"]["emailSubscribers"][emailSubDict["email"]] = emailSubDict
+        self.emailSubscriberAdded.emit(emailSubDict)
+
+    def toggleEmailNotifications(self, toggle:bool) -> None:
+        self.currentSettings["subscriberSettings"]["broadcastToSubscribers"] = toggle
+        self.emailNotificatioToggle.emit(toggle)
     
     def saveSettings(self) -> None:
         self.saveSettingsToIniFile()
     
     def loadSettings(self) -> Dict:
         if self.valuesInIniExists():
-            return self.loadSettingsFromIniFile()
+            logger.info("Found settings .INI file")
+            try:
+                ini_settings = self.loadSettingsFromIniFile()
+                logger.info("INI settings successfully loaded")
+                return ini_settings
+            except ValueNotDefinedInINIError as e:
+                logger.warning(f"Ini file structure corrupted. Using default settings. Error details: {e}")
         return defaultSettings.copy()
     
     def valuesInIniExists(self) -> bool:
-        return self.settings.value("configExists")
+        return self.settings.value("configExists", raise_error = False)
 
     def saveSettingsToIniFile(self) -> None:
         self.settings.setValue("algorithmType", self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['algorithmType'])
@@ -182,10 +210,12 @@ class SettingsManager(QObject):
         self.settings.setValue("scalingWidth",self.currentSettings["movementLoggerSettings"]['scalingWidth'])
         self.settings.setValue("invertedXaxis",self.currentSettings["movementLoggerSettings"]['invertedXaxis'])
         self.settings.setValue("loggingPath",self.currentSettings["movementLoggerSettings"]['loggingPath'])
+        self.settings.setValue("oneLineLog",self.currentSettings["movementLoggerSettings"]['oneLineLog'])
         self.settings.setValue("cameraIndex",self.currentSettings["cameraSettings"]['cameraIndex'])
         self.settings.setValue("detectionEnabled",self.currentSettings["objectDetectionSettings"]['detectionEnabled'])
         self.settings.setValue("confidenceThreshold",self.currentSettings["objectDetectionSettings"]['confidenceThreshold'])
-        self.settings.setValue("emailSubscribers", self.currentSettings["emailSubscribers"])
+        self.settings.setValue("emailSubscribers", self.currentSettings["subscriberSettings"]["emailSubscribers"])
+        self.settings.setValue("broadcastToSubscribers", self.currentSettings["subscriberSettings"]["broadcastToSubscribers"])
         self.settings.setValue("configExists", True)
 
     def loadSettingsFromIniFile(self) -> Dict:
@@ -219,7 +249,8 @@ class SettingsManager(QObject):
                 "loggingInterval":self.settings.value("loggingInterval"),
                 "scalingWidth": self.settings.value("scalingWidth"),
                 "invertedXaxis": True if self.settings.value('invertedXaxis') in ['true','True'] else False,
-                "loggingPath":self.settings.value("loggingPath")
+                "loggingPath":self.settings.value("loggingPath"),
+                "oneLineLog": True if self.settings.value("oneLineLog") in ['true','True'] else False
             },
             "cameraSettings":{
                 "cameraIndex": self.settings.value("cameraIndex")
@@ -228,7 +259,10 @@ class SettingsManager(QObject):
                 "detectionEnabled": True if self.settings.value('detectionEnabled') in ['true','True'] else False,
                 "confidenceThreshold": float(self.settings.value("confidenceThreshold"))
             },
-            "emailSubscribers": self.settings.value("emailSubscribers")      
+            "subscriberSettings": {
+                "emailSubscribers": self.settings.value("emailSubscribers"),
+                "broadcastToSubscribers": True if self.settings.value('broadcastToSubscribers') in ['true','True'] else False,
+            }      
         }
     
     def reloadRecordingPathIfNeeded(self) -> None:

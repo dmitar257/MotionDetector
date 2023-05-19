@@ -57,8 +57,8 @@ class FrameDrawer(QObject):
     def onSetIsRecordingText(self, isRecording:bool) -> None:
         self.showIsRecording = isRecording
     
-    @pyqtSlot(bool)
-    def onSetIsSoundDetectedText(self, isSoundDetected:bool) -> None:
+    @pyqtSlot(bool, int)
+    def onSetIsSoundDetectedText(self, isSoundDetected:bool, sound_intensity: int) -> None:
         self.showSoundDetected = isSoundDetected
 
     @pyqtSlot(PreviewFrames)
