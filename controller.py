@@ -10,7 +10,7 @@ from frame_processors.frameFetcherFactory import FrameFetcherFactory
 from frameToNetworkStreamer import FrameToNetworkStreamer
 from frame_processors.frameTransformator import ContoursInfo, FrameTransforamtorFactory, FrameTransformator
 from frame_processors.objectDetector import ObjectDetectionSettings, ObjectDetector
-from movementLogger import MovementLogger, MovementLoggerFactory
+from eventLogger import EventLogger, MovementLoggerFactory
 from movementRecorder import MovementRecorder
 from frame_processors.movementTracker import MovementTracker, MovementTrackerFactory
 from settingsManager import SettingsManager
@@ -62,7 +62,7 @@ class Controller(QObject):
         self.frameDrawer: FrameDrawer = FrameDrawer()
         self.movementTracker: MovementTracker = MovementTrackerFactory.createMovementTracker(settingsManager.getMovementTrackerSettings())
         self.movementRecorder: MovementRecorder = MovementRecorder()
-        self.movementLogger: MovementLogger = MovementLoggerFactory.createMovementLogger(settingsManager.getMovementLoggerSettingss())
+        self.eventLogger: EventLogger = MovementLoggerFactory.createMovementLogger(settingsManager.getMovementLoggerSettingss())
         self.soundDetector:SoundDetector = SoundDetectorFactory.createSoundDetector(settingsManager.getSoundDetectionSettings())
         self.tcpServer = TcpServer(9500)
         self.objectDetector = ObjectDetector(
@@ -96,20 +96,20 @@ class Controller(QObject):
     def connectFrameFetcherSignalAndSlots(self) -> None:
         self.frameFetcher.frameFetched.connect(self.objectDetector.onFrameReceived)
         self.frameFetcher.frameFetched.connect(self.frameTransforamtor.onFrameReceived)
+        self.frameFetcher.frameFetched.connect(self.movementRecorder.onFrameReceived)
+        self.frameFetcher.frameFetched.connect(self.gifCreator.onFrameReceived)
+        self.frameFetcher.frameFetched.connect(self.frameDrawer.onPrepareFrameForDisplay)
         self.frameFetcher.frameResolutionFetched.connect(self.frameTransforamtor.onFrameResolutionReceived)
         self.frameFetcher.noInputFoundError.connect(self.onNoInputFoundFromFrameFetcher)
         self.startFrameFetcher.connect(self.frameFetcher.onStartSignalReceived)
         self.changeFrameFetcherSettings.connect(self.frameFetcher.onFrameFetcherSettingsChanged)
     
     def connectFrameTransforamtorSignalAndSlots(self) -> None:
-        self.frameTransforamtor.frameReadyForDrawing.connect(self.frameDrawer.onPrepareFrameForDisplay)
         self.frameTransforamtor.contoursFound.connect(self.frameDrawer.onContourDataReceived)
         self.frameTransforamtor.contoursFound.connect(self.onContoursReceivedFromTransformator)
         self.frameTransforamtor.previewFramesReadyForDrawing.connect(self.frameDrawer.onPreparePreviewFramesForDisplay)
         self.frameTransforamtor.movementInFrameDetected.connect(self.movementTracker.onMovementPresentToggled)
-        self.frameTransforamtor.broadcastInitialFrame.connect(self.movementRecorder.onFrameReceived)
-        self.frameTransforamtor.resizedFrameDimensionInfoCalculated.connect(self.movementLogger.onOriginalFrameDimensionInfoReceived)
-        self.frameTransforamtor.broadcastInitialFrame.connect(self.gifCreator.onFrameReceived)
+        self.frameTransforamtor.resizedFrameDimensionInfoCalculated.connect(self.eventLogger.onOriginalFrameDimensionInfoReceived)
         self.toggleShowPreviewFrames.connect(self.frameTransforamtor.onShowPreviewFramesToggled)
         
     def connectFrameDrawerSignalAndSlots(self) -> None:
@@ -119,7 +119,7 @@ class Controller(QObject):
 
     def connectSoundDetectorSignalAndSlots(self) -> None:
         self.soundDetector.soundAbowThresholdDetected.connect(self.frameDrawer.onSetIsSoundDetectedText)
-        self.soundDetector.soundAbowThresholdDetected.connect(self.movementLogger.onSoundDetectedReceived)
+        self.soundDetector.soundAbowThresholdDetected.connect(self.eventLogger.onSoundDetectedReceived)
         self.soundDetector.errorOccured.connect(self.onErrorOccuredInSoundDetector)
 
     def connectMovementTrackerSignalAndSlots(self) -> None:
@@ -129,10 +129,10 @@ class Controller(QObject):
     
     def connectMovementRecorderSignalAndSlots(self) -> None:
         self.movementRecorder.toggleIsRecording.connect(self.frameDrawer.onSetIsRecordingText)
-        self.movementRecorder.toggleIsRecording.connect(self.frameTransforamtor.onBroadcastingInitialFrameToggled)
+        #self.movementRecorder.toggleIsRecording.connect(self.frameTransforamtor.onBroadcastingInitialFrameToggled)
     
     def connectMovementLoggerSignalAndSlots(self) -> None:
-        self.contoursReceivedFromTransforamtor.connect(self.movementLogger.onMovementCoordinatesReceived)
+        self.contoursReceivedFromTransforamtor.connect(self.eventLogger.onMovementCoordinatesReceived)
     
     def connectTcpServerSignalAndSlots(self) -> None:
         self.tcpServer.connectionToServerMade.connect(self.onSomeoneConnectedToServer)
@@ -143,7 +143,7 @@ class Controller(QObject):
         self.settingsManager.frameRecordingSettingsSet.connect(self.movementTracker.onSettingsChanged)
         self.settingsManager.soundDetectionSettingsSet.connect(self.onSoundDetectedSettingsChanged)
         self.settingsManager.objectDetectionSettingsSet.connect(self.onObjectDetectionSettingsChanged)
-        self.settingsManager.movementLoggerSettingsSet.connect(self.movementLogger.onSettingsChanged)
+        self.settingsManager.movementLoggerSettingsSet.connect(self.eventLogger.onSettingsChanged)
         self.settingsManager.cameraSettingsSet.connect(self.onCameraSettingsChanged)
         self.settingsManager.emailSubscriberAdded.connect(self.emailSubsribersController.onSubscriberAdded)
         self.settingsManager.emailNotificatioToggle.connect(self.emailSubsribersController.onEnableNotificationsToggled)
@@ -158,7 +158,7 @@ class Controller(QObject):
     def connectEmailSubscribersController(self) -> None:
         self.emailSubsribersController.toggleCreatingMovementGIF.connect(self.gifCreator.onCreateGifToggle)
         self.gifCreator.gifReady.connect(self.emailSubsribersController.onGifCreated)
-        self.gifCreator.toggledRunning.connect(self.frameTransforamtor.onBroadcastingInitialFrameToggled)
+        #self.gifCreator.toggledRunning.connect(self.frameTransforamtor.onBroadcastingInitialFrameToggled)
 
     def createThreadingGroups(self) -> None:
         self.threadController.addWorkerToGroup(
@@ -193,10 +193,10 @@ class Controller(QObject):
             )
         self.threadController.addWorkerToGroup(
             WorkerGroupInfo(
-                self.movementLogger,
+                self.eventLogger,
                 LOGGER_PROCESSING_GROUP,
-                self.movementLogger.onStart,
-                self.movementLogger.onStop
+                self.eventLogger.onStart,
+                self.eventLogger.onStop
             )
         )
         self.threadController.addWorkerToGroup(

@@ -119,6 +119,11 @@ class SoundDetector(QObject):
                 logger.error("Log error when calculating RMS for sound block")
                 return None
             raise valErr
+        except Exception as e:
+            logger.error("Unexpected error appeared when trying to calculate rms_log for audio block. "
+                         f"Error details {e}"
+                         )
+            return None
     
     def get_rms(self, block: bytes) -> float:
         count = len(block) / 2

@@ -13,11 +13,15 @@ defaultSettings = {
     "frameTransformatorSettings":{
         "backgroundSubstractionSettings":{
             "algorithmType":AlgorithmType.RUNNING_AVG,
-            "thresholdBinValue" : 25,
+            "runningAvgThresholdBinValue" : 25,
+            "gaussianMixtureThresholdValue": 16,
+            "knnThresholdValue": 300,
             "runningAvgAlpha": 0.05,
             "gaussianMixtureHistory": 250,
             "runningAvgMinArea": 2000,
-            "gaussianMixtureMinArea": 1000      
+            "gaussianMixtureMinArea": 1000,
+            "knnHistory": 500,
+            "knnMinArea": 1000,
         },
         "resizeDimension": 500,
         "gaussianBlurKernelSize" : 15,
@@ -99,11 +103,15 @@ class SettingsManager(QObject):
         return {
             "backgroundSubstractionSettings":{
                 "algorithmType":AlgorithmType.RUNNING_AVG,
-                "thresholdBinValue" : 20,
+                "runningAvgThresholdBinValue" : 20,
+                "gaussianMixtureThresholdValue": 25,
+                "knnThresholdValue": 500,
                 "runningAvgAlpha": 0.03,
                 "gaussianMixtureHistory": 250,
                 "runningAvgMinArea": 10000,
-                "gaussianMixtureMinArea": 2000      
+                "gaussianMixtureMinArea": 2000,
+                "knnHistory": 500,
+                "knnMinArea": 2000,      
             },
             "resizeDimension": 500,
             "gaussianBlurKernelSize" : 15,
@@ -192,7 +200,9 @@ class SettingsManager(QObject):
         self.settings.setValue("algorithmType", self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['algorithmType'])
         self.settings.setValue("gaussianBlurKernelSize",self.currentSettings['frameTransformatorSettings']['gaussianBlurKernelSize'])
         self.settings.setValue("resizeDimension",self.currentSettings['frameTransformatorSettings']['resizeDimension'])
-        self.settings.setValue("thresholdBinValue",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['thresholdBinValue'])
+        self.settings.setValue("runningAvgThresholdBinValue",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['runningAvgThresholdBinValue'])
+        self.settings.setValue("gaussianMixtureThresholdValue",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['gaussianMixtureThresholdValue'])
+        self.settings.setValue("knnThresholdValue",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['knnThresholdValue'])
         self.settings.setValue("erosionKernelSize",self.currentSettings['frameTransformatorSettings']['erosionKernelSize'])
         self.settings.setValue("erosionIterations",self.currentSettings['frameTransformatorSettings']['erosionIterations'])
         self.settings.setValue("dilationKernelSize",self.currentSettings['frameTransformatorSettings']['dilationKernelSize'])
@@ -201,6 +211,8 @@ class SettingsManager(QObject):
         self.settings.setValue("runningAvgAlpha",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['runningAvgAlpha'])
         self.settings.setValue("gaussianMixtureMinArea",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['gaussianMixtureMinArea'])
         self.settings.setValue("gaussianMixtureHistory",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['gaussianMixtureHistory'])
+        self.settings.setValue("knnHistory",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['knnHistory'])
+        self.settings.setValue("knnMinArea",self.currentSettings['frameTransformatorSettings']['backgroundSubstractionSettings']['knnMinArea'])  
         self.settings.setValue("movementPresentThreshold", self.currentSettings['movementRecorderSettings']['movementPresentThreshold'])
         self.settings.setValue("movementAbsenceThreshold", self.currentSettings['movementRecorderSettings']['movementAbsenceThreshold'])
         self.settings.setValue("recordingsDir",self.currentSettings['movementRecorderSettings']['recordingsDir'])
@@ -223,11 +235,15 @@ class SettingsManager(QObject):
             "frameTransformatorSettings":{
                 "backgroundSubstractionSettings":{
                     "algorithmType": AlgorithmType(self.settings.value("algorithmType")),
-                    "thresholdBinValue" : self.settings.value("thresholdBinValue"),
+                    "runningAvgThresholdBinValue" : self.settings.value("runningAvgThresholdBinValue"),
+                    "gaussianMixtureThresholdValue" : self.settings.value("gaussianMixtureThresholdValue"),                   
+                    "knnThresholdValue":self.settings.value("knnThresholdValue"),
                     "runningAvgAlpha": float(self.settings.value("runningAvgAlpha")),
                     "gaussianMixtureHistory": self.settings.value("gaussianMixtureHistory"),
                     "runningAvgMinArea": self.settings.value("runningAvgMinArea"),
-                    "gaussianMixtureMinArea": self.settings.value("gaussianMixtureMinArea")      
+                    "gaussianMixtureMinArea": self.settings.value("gaussianMixtureMinArea"),
+                    "knnHistory":self.settings.value("knnHistory"),
+                    "knnMinArea":self.settings.value("knnMinArea")       
                 },
                 "resizeDimension": self.settings.value("resizeDimension"),
                 "gaussianBlurKernelSize" : self.settings.value("gaussianBlurKernelSize"),

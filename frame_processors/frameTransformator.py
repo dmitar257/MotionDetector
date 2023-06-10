@@ -4,8 +4,7 @@ from typing_extensions import Protocol
 from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 from dataclasses import dataclass
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot, QEventLoop
-from frame_processors.objectDetector import ObjectDetector
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 from utils import AlgorithmType, Frame, Contour, PointCoords, PreviewFrames, get_aspect_ratio_from_resolution, meanByColumn
 import cv2
 import imutils
@@ -29,9 +28,10 @@ class DilationParameters:
 @dataclass
 class BackgroundSubstractingParams:
     algorithmType: AlgorithmType
-    thresholdBinValue: int
+    thresholdValue: int
     runningAvgAlpha: float
     gaussianMixtureHistory: int
+    knnHistory:int
 
 @dataclass
 class ContourCalculationParams:
@@ -124,12 +124,12 @@ class RunninAverageBackgroundSubstractor:
         self.backgroundFrame = None
 
 class MixtureOfGaussiansBackgroundSubstractor:
-    def __init__(self, gaussian_mixture_history: int, threshold_bin_val: int) -> None:
+    def __init__(self, gaussian_mixture_history: int, threshold_val: int) -> None:
         self.gaussian_mixture_history = gaussian_mixture_history
-        self.threshold_bin_val = threshold_bin_val
+        self.threshold_val = threshold_val
         self.background_substraction_model = cv2.createBackgroundSubtractorMOG2(
             history = self.gaussian_mixture_history,
-            varThreshold = self.threshold_bin_val, 
+            varThreshold = self.threshold_val, 
             detectShadows = False)
         
     def applyBackgroundSubstraction(self, blured_bw_frame: Frame) -> Frame:
@@ -138,8 +138,27 @@ class MixtureOfGaussiansBackgroundSubstractor:
     def reset(self) -> None:
         self.background_substraction_model = cv2.createBackgroundSubtractorMOG2(
             history = self.gaussian_mixture_history,
-            varThreshold = self.threshold_bin_val, 
-            detectShadows = False)        
+            varThreshold = self.threshold_val, 
+            detectShadows = False)
+
+class KNNBackgroundSubstractor:
+    def __init__(self, knn_history: int, dist_threshold: int) -> None:
+        self.knn_history = knn_history
+        self.dist_threshold = dist_threshold
+        self.background_substraction_model = cv2.createBackgroundSubtractorKNN(
+            history = self.knn_history,
+            dist2Threshold = self.dist_threshold, 
+            detectShadows = False)
+        
+    def applyBackgroundSubstraction(self, blured_bw_frame: Frame) -> Frame:
+        return self.background_substraction_model.apply(blured_bw_frame)
+    
+    def reset(self) -> None:
+        self.background_substraction_model = cv2.createBackgroundSubtractorKNN(
+            history = self.knn_history,
+            dist2Threshold = self.dist_threshold, 
+            detectShadows = False) 
+
 
 class OpenCVContourCalculator:
     def __init__(self) -> None:
@@ -196,10 +215,8 @@ class OpenCVContourCalculator:
 
 class FrameTransformator(QObject):
     contoursFound = pyqtSignal(ContoursInfo)
-    frameReadyForDrawing = pyqtSignal(Frame)
     previewFramesReadyForDrawing = pyqtSignal(PreviewFrames)
     movementInFrameDetected = pyqtSignal(bool)
-    broadcastInitialFrame = pyqtSignal(Frame)
     resizedFrameDimensionInfoCalculated = pyqtSignal(dict)
 
     def __init__(self, 
@@ -240,13 +257,18 @@ class FrameTransformator(QObject):
         dilationParams = DilationParameters(transformatorSettings["dilationKernelSize"], transformatorSettings["dilationIterations"])
         backgroundSubstractorParams = BackgroundSubstractingParams(
             transformatorSettings["backgroundSubstractionSettings"]["algorithmType"],
-            transformatorSettings["backgroundSubstractionSettings"]["thresholdBinValue"],
+            transformatorSettings["backgroundSubstractionSettings"]["runningAvgThresholdBinValue"],
             transformatorSettings["backgroundSubstractionSettings"]["runningAvgAlpha"],
-            transformatorSettings["backgroundSubstractionSettings"]["gaussianMixtureHistory"]
+            transformatorSettings["backgroundSubstractionSettings"]["gaussianMixtureHistory"],
+            transformatorSettings["backgroundSubstractionSettings"]["knnHistory"]
         )
         min_area = transformatorSettings["backgroundSubstractionSettings"]["runningAvgMinArea"]
         if backgroundSubstractorParams.algorithmType == AlgorithmType.MIXTURE_OF_GAUSSIANS:
             min_area = transformatorSettings["backgroundSubstractionSettings"]["gaussianMixtureMinArea"]
+            backgroundSubstractorParams.thresholdValue = transformatorSettings["backgroundSubstractionSettings"]["gaussianMixtureThresholdValue"]
+        if backgroundSubstractorParams.algorithmType == AlgorithmType.KNN:
+            min_area = transformatorSettings["backgroundSubstractionSettings"]["knnMinArea"]
+            backgroundSubstractorParams.thresholdValue = transformatorSettings["backgroundSubstractionSettings"]["knnThresholdValue"]
         return FrameTransforamtorSettings(
             gausianBlurParams,
             erosionParams,
@@ -259,7 +281,6 @@ class FrameTransformator(QObject):
         if not self.transforamtorEnabled:
             logger.info("Droping received frame !")
             return
-        backup_frame = frame.copy()
         grayed_frame = self.frameProcessor.transformImageToGrayscale(frame)
         blured_frame = self.frameProcessor.applyGaussianBlurToImage(grayed_frame, self.settings.gausianBlurParams)
         binarized_frame = self.backgroundSubstractor.applyBackgroundSubstraction(blured_frame)
@@ -271,8 +292,6 @@ class FrameTransformator(QObject):
             self.contoursFound.emit(contour_info)
             movement_detected = True
         self.movementInFrameDetected.emit(movement_detected)
-        if self.numOfSubscribersForInitialFrame > 0:
-            self.broadcastInitialFrame.emit(backup_frame)
         if self.sendPreviewFrames:
             self.previewFramesReadyForDrawing.emit(
                 PreviewFrames(
@@ -281,15 +300,14 @@ class FrameTransformator(QObject):
                     binarized_frame,
                     dilated_frame
                 ))
-        self.frameReadyForDrawing.emit(frame)
 
-    @pyqtSlot(bool)
-    def onBroadcastingInitialFrameToggled(self, broadcast_init_frame: bool) -> None:
-        if broadcast_init_frame:
-            self.numOfSubscribersForInitialFrame += 1
-        else:
-            if self.numOfSubscribersForInitialFrame > 0:
-                self.numOfSubscribersForInitialFrame -= 1
+    # @pyqtSlot(bool)
+    # def onBroadcastingInitialFrameToggled(self, broadcast_init_frame: bool) -> None:
+    #     if broadcast_init_frame:
+    #         self.numOfSubscribersForInitialFrame += 1
+    #     else:
+    #         if self.numOfSubscribersForInitialFrame > 0:
+    #             self.numOfSubscribersForInitialFrame -= 1
             
 
     @pyqtSlot(bool)
@@ -345,12 +363,17 @@ class FrameTransforamtorFactory:
         if bckg_substractor_settings.algorithmType == AlgorithmType.RUNNING_AVG:
             return RunninAverageBackgroundSubstractor(
                 bckg_substractor_settings.runningAvgAlpha,
-                bckg_substractor_settings.thresholdBinValue
+                bckg_substractor_settings.thresholdValue
             )
         elif bckg_substractor_settings.algorithmType == AlgorithmType.MIXTURE_OF_GAUSSIANS:
             return MixtureOfGaussiansBackgroundSubstractor(
                 bckg_substractor_settings.gaussianMixtureHistory,
-                bckg_substractor_settings.thresholdBinValue
+                bckg_substractor_settings.thresholdValue
+            )
+        elif bckg_substractor_settings.algorithmType == AlgorithmType.KNN:
+            return KNNBackgroundSubstractor(
+                bckg_substractor_settings.knnHistory,
+                bckg_substractor_settings.thresholdValue
             )
         else:
             raise BaseException("Unknown algorithm type provided for background substraction creation")

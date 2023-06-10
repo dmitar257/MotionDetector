@@ -25,6 +25,7 @@ class PreviewFrames:
 class AlgorithmType(enum.Enum):
     RUNNING_AVG = 0
     MIXTURE_OF_GAUSSIANS = 1
+    KNN = 2
 
 class SourceMediaType(enum.Enum):
     CAMERA = 0

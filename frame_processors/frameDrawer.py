@@ -50,8 +50,9 @@ class FrameDrawer(QObject):
 
     @pyqtSlot(Frame)
     def onPrepareFrameForDisplay(self, frame: Frame) -> None:
-        self.drawElementsOnFrame(frame)
-        self.frameReadyForDisplay.emit(frame)
+        frameForDrawing = frame.copy()
+        self.drawElementsOnFrame(frameForDrawing)
+        self.frameReadyForDisplay.emit(frameForDrawing)
     
     @pyqtSlot(bool)
     def onSetIsRecordingText(self, isRecording:bool) -> None:

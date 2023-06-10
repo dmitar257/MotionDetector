@@ -79,7 +79,7 @@ class EmailSubscribersController(QObject):
             except Exception as e:
                 logger.error("Error during sending email notification to subscriber: %s", subscriber.email)
                 logger.error(e)
-                break
+                continue
         self.listOfUnprocessedSubscribers.clear()
 
     def getMessageForSubscriber(self, subscriber: EmailSubsriber) -> str:

@@ -13,17 +13,17 @@ LOG_FILE_NAME = "log.txt"
 PENDING_QUEUE_SIZE = 1000
 
 @dataclass
-class MovementLoggerParameters:
+class EventLoggerParameters:
     loggingInterval: int
     loggingFile: str
     scalingWidth: int = 800
     calculateInverse: bool = False
     useOneLineLogs: bool = False
     
-class MovementLogger(QObject):
-    def __init__(self, movementLoggerParams: MovementLoggerParameters) -> None:
+class EventLogger(QObject):
+    def __init__(self, eventLoggerParams: EventLoggerParameters) -> None:
         super().__init__()
-        self.loggerParams = movementLoggerParams
+        self.loggerParams = eventLoggerParams
         self.originalFrameResolution: Optional[Tuple[int, int]] = None
         self.aspectRatio: Optional[Tuple[int, int]] = None
         self.scaledFrameResolution: Optional[Tuple[int, int]] = None
@@ -128,7 +128,7 @@ class MovementLogger(QObject):
     
     @pyqtSlot(dict)
     def onSettingsChanged(self, settings: Dict) -> None:
-        self.loggerParams = MovementLoggerParameters(
+        self.loggerParams = EventLoggerParameters(
             settings["loggingInterval"],
             settings["loggingPath"],
             settings["scalingWidth"],
@@ -146,9 +146,9 @@ class MovementLogger(QObject):
 
 class MovementLoggerFactory:
     @classmethod
-    def createMovementLogger(cls, settings_dict: Dict) -> MovementLogger:
-        return MovementLogger(
-            MovementLoggerParameters(
+    def createMovementLogger(cls, settings_dict: Dict) -> EventLogger:
+        return EventLogger(
+            EventLoggerParameters(
                 settings_dict["loggingInterval"],
                 settings_dict["loggingPath"],
                 settings_dict["scalingWidth"],
