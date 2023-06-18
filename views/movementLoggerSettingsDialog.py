@@ -46,7 +46,14 @@ class MotionLoggingSettingsDialog(QtWidgets.QDialog):
         }
 
     def onBrowseFoldersBtnClicked(self):
-        file = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
+        options = QtWidgets.QFileDialog.Options()
+        file,_ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            "Select logging file path",
+            ".",
+             "Text Files (*.txt);;All Files (*)",
+             options=options
+        )
         if file:
             self.logFilePathLineEdit.setText(file)
 

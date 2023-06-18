@@ -66,7 +66,7 @@ def get_aspect_ratio_from_resolution(width: int, height: int) -> Tuple[int, int]
 def createFolderIfNoExisting(folderPath):
     if not os.path.exists(folderPath):
         logger.info("Creating folder: %s", folderPath)
-        os.mkdir(folderPath)
+        os.makedirs(folderPath)
         logger.info("Created folder: %s", folderPath)
         
 

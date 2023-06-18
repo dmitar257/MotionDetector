@@ -34,7 +34,8 @@ class EventLogger(QObject):
         self.loggingTimer:Optional[QTimer] = None
 
     def initializeLoggerDir(self) -> None:
-        if not os.path.exists(os.path.dirname(self.loggerParams.loggingFile)):
+        log_dir = os.path.dirname(self.loggerParams.loggingFile)
+        if not os.path.exists(log_dir):
             os.mkdir(os.path.dirname(self.loggerParams.loggingFile))
     
     @pyqtSlot()
@@ -76,7 +77,7 @@ class EventLogger(QObject):
         log_entry = ""
         try:
             writing_mode = "w" if self.loggerParams.useOneLineLogs else "a"
-            with open(os.path.join(self.loggerParams.loggingFile, LOG_FILE_NAME), writing_mode, encoding = "ascii") as f:
+            with open(self.loggerParams.loggingFile, writing_mode, encoding = "ascii") as f:
                 timestamp = datetime.now().strftime("%b_%d_%Y_%H_%M_%S")
                 log_entry = self.__create_log_entry(timestamp)
                 f.write(log_entry)
@@ -92,7 +93,7 @@ class EventLogger(QObject):
         try:
             if not self.pendingWriteQueue.empty():
                 writing_mode = "w" if self.loggerParams.useOneLineLogs else "a"
-                with open(os.path.join(self.loggerParams.loggingFile, LOG_FILE_NAME), writing_mode, encoding = "ascii") as f:
+                with open(self.loggerParams.loggingFile, writing_mode, encoding = "ascii") as f:
                     if self.loggerParams.useOneLineLogs:
                         log_entry = self.pendingWriteQueue.get()
                         f.write(log_entry)

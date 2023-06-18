@@ -43,7 +43,7 @@ defaultSettings = {
         "loggingInterval":500,
         "scalingWidth": 800,
         "invertedXaxis":False,
-        "loggingPath":"C:\\test",
+        "loggingPath":"C:\\test\\log.txt",
         "oneLineLog": True
     },
     "cameraSettings":{
